@@ -316,10 +316,6 @@ void unitree::robot::slam::TestClient::slamInfoHandler(const void *message)
     // pose 确认消息类型是“位姿信息”（type="pos_info"），然后更新curPose
     if (jsonData["type"] == "pos_info")
     {
-         // 新增：打印更新前的curPose（对比用）
-        std::cout << "[回调更新前] curPose: ";
-        curPose.printInfo();
-
         curPose.x = jsonData["data"]["currentPose"]["x"];
         curPose.y = jsonData["data"]["currentPose"]["y"];
         curPose.z = jsonData["data"]["currentPose"]["z"];
@@ -327,10 +323,6 @@ void unitree::robot::slam::TestClient::slamInfoHandler(const void *message)
         curPose.q_y = jsonData["data"]["currentPose"]["q_y"];
         curPose.q_z = jsonData["data"]["currentPose"]["q_z"];
         curPose.q_w = jsonData["data"]["currentPose"]["q_w"];
-
-        // 新增：打印更新后的curPose（确认是否更新成功）
-        std::cout << "[回调更新后] curPose: ";
-        curPose.printInfo();
     }
 }
 
@@ -351,6 +343,10 @@ void unitree::robot::slam::TestClient::slamKeyInfoHandler(const void *message)
     if (jsonData["type"] == "task_result")
     {
         is_arrived = jsonData["data"]["is_arrived"];
+         // 新增日志：确认is_arrived的赋值情况
+        std::cout << "[到达状态更新] is_arrived: " << (is_arrived ? "true（到达）" : "false（未到达）") 
+                  << "，目标点：" << jsonData["data"]["targetNodeName"] << std::endl;
+                  
         if (is_arrived)
         {
             std::cout << "I arrived " << jsonData["data"]["targetNodeName"] << std::endl;
