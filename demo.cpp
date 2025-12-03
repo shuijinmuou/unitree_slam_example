@@ -241,9 +241,33 @@ void unitree::robot::slam::TestClient::taskLoopFun(std::promise<void> &prom)
         currentPoseList = mapPoseLists[currentMapId];  // 拷贝快照（脱离原列表）
     }
 
+    //==============================================打印currentPoseList=======================================
+    std::cout << "\n=================== 地图" << currentMapId << "导航点快照 ===================" << std::endl;
+    std::cout << "快照currentPoseList共包含 " << currentPoseList.size() << " 个导航点，详情如下：" << std::endl;
+    for (int idx = 0; idx < currentPoseList.size(); idx++)
+    {
+        std::cout << "快照点[" << (idx + 1) << "]：";  // 标注点的序号（1开始）
+        currentPoseList[idx].printInfo();  // 调用poseDate自带的打印函数，输出x/y/z/四元数
+    }
+    std::cout << "================================================================\n" << std::endl;
+    //===============================================================================================
+
+
     // 3. 后续遍历“快照”（原有逻辑保留，仅改遍历对象）
     std::cout << "task list num:" << currentPoseList.size() << "（地图" << currentMapId << "）" << std::endl;
     std::vector<poseDate> navList = currentPoseList;  // 再拷贝一份用于反转（避免改快照原数据）
+    
+    // ===================== 新增：打印 navList 拷贝结果 =====================
+    std::cout << "=================== 地图" << currentMapId << " navList（初始状态） ===================" << std::endl;
+    std::cout << "navList 共包含 " << navList.size() << " 个导航点（与快照一致），详情如下：" << std::endl;
+    for (int idx = 0; idx < navList.size(); idx++)
+    {
+        std::cout << "navList点[" << (idx + 1) << "]：";  // 标注是navList的点
+        navList[idx].printInfo();  // 复用printInfo()，格式统一
+    }
+    std::cout << "================================================================\n" << std::endl;
+    // ======================================================================
+
     for (int i = 0; i < navList.size() && threadControl; i++)
     {
         is_arrived = false;
@@ -263,13 +287,13 @@ void unitree::robot::slam::TestClient::taskLoopFun(std::promise<void> &prom)
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
 
-        // 原有逻辑：如果是最后一个点，反转列表循环（保留，适配当前地图的列表）
+       /*// 原有逻辑：如果是最后一个点，反转列表循环（保留，适配当前地图的列表）
         if (i == navList.size() - 1)
         {
             i = -1 ;
             std::reverse(navList.begin(), navList.end());
             std::cout << "=== 地图" << currentMapId << "：已到达最后一个点，反转导航顺序 ===" << std::endl;
-        }
+        }*/ 
     }
 
     // 导航结束
