@@ -316,6 +316,10 @@ void unitree::robot::slam::TestClient::slamInfoHandler(const void *message)
     // pose 确认消息类型是“位姿信息”（type="pos_info"），然后更新curPose
     if (jsonData["type"] == "pos_info")
     {
+         // 新增：打印更新前的curPose（对比用）
+        std::cout << "[回调更新前] curPose: ";
+        curPose.printInfo();
+
         curPose.x = jsonData["data"]["currentPose"]["x"];
         curPose.y = jsonData["data"]["currentPose"]["y"];
         curPose.z = jsonData["data"]["currentPose"]["z"];
@@ -323,6 +327,10 @@ void unitree::robot::slam::TestClient::slamInfoHandler(const void *message)
         curPose.q_y = jsonData["data"]["currentPose"]["q_y"];
         curPose.q_z = jsonData["data"]["currentPose"]["q_z"];
         curPose.q_w = jsonData["data"]["currentPose"]["q_w"];
+
+        // 新增：打印更新后的curPose（确认是否更新成功）
+        std::cout << "[回调更新后] curPose: ";
+        curPose.printInfo();
     }
 }
 
@@ -571,6 +579,10 @@ unsigned char unitree::robot::slam::TestClient::keyExecute()
 
          case 's':
          {
+            // 新增：打印即将保存的curPose
+            std::cout << "[准备保存] 当前curPose: ";
+            curPose.printInfo();
+            
             // 检查是否已选地图
             if (currentMapId == 0)
             {
