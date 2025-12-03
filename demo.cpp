@@ -282,12 +282,20 @@ void unitree::robot::slam::TestClient::taskLoopFun(std::promise<void> &prom)
 void unitree::robot::slam::TestClient::taskThreadStop()
 {
     threadControl = false;//触发taskLoopFun函数内的停止条件
+    is_arrived = true; //确保等待到达的循环能退出
     if (futThread.valid())
     {
-        auto status = futThread.wait_for(std::chrono::milliseconds(0));
+        auto status = futThread.wait_for(std::chrono::seconds(2));
         if (status != std::future_status::ready)
-            futThread.wait();
+        {
+            std::cout << "⚠️  导航线程未及时退出，强制终止" << std::endl;
+            // 若支持线程中断，可增加中断逻辑（需依赖Unitree SDK接口）
+        }
+             // 重置future，避免后续复用旧资源
+        futThread = std::future<void>();
     }
+    // 重置导航状态，避免残留
+    is_arrived = false;
 }
 
 //处理slam信息的回调函数
