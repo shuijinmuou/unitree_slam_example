@@ -570,6 +570,7 @@ unsigned char unitree::robot::slam::TestClient::keyExecute()
             break;*/
 
          case 's':
+         {
             // 检查是否已选地图
             if (currentMapId == 0)
             {
@@ -585,8 +586,8 @@ unsigned char unitree::robot::slam::TestClient::keyExecute()
             curPose.printInfo();
             std::cout << "当前地图导航点总数：" << mapPoseLists[currentMapId].size() << std::endl;
             break;
-        
-
+         }
+            
         /*case 'd':
             taskThreadRun();
             break;*/
@@ -617,6 +618,7 @@ unsigned char unitree::robot::slam::TestClient::keyExecute()
         
             // 修改：f键→清空当前选中地图的导航点
         case 'f':
+        {
             if (currentMapId == 0)
             {
                 std::cout << "⚠️  请先按数字键1~9选择地图，再按f清空导航点！" << std::endl;
@@ -627,6 +629,7 @@ unsigned char unitree::robot::slam::TestClient::keyExecute()
             mapPoseLists[currentMapId].clear();
             std::cout << "=== 已清空地图" << currentMapId << "的所有导航点 ===" << std::endl;
             break;
+        }
         case 'z':
             pauseNavFun();
             break;
