@@ -468,6 +468,8 @@ void unitree::robot::slam::TestClient::endMappingPlFun()
 void unitree::robot::slam::TestClient::relocationPlFun()
 {
     std::string parameter, data;
+    bool relocationFinished = false; // 定位完成标志
+    int waitCount = 0;               // 等待计数器（避免无限阻塞
     
     // 构造定位参数（传入当前地图的Pcd路径）
     if (mapPcdPaths.find(currentMapId) != mapPcdPaths.end())
@@ -493,6 +495,27 @@ void unitree::robot::slam::TestClient::relocationPlFun()
     std::cout << "statusCode:" << statusCode << std::endl;
     std::cout << "基于地图" << currentMapId << "定位，Pcd路径：" << (mapPcdPaths.count(currentMapId) ? mapPcdPaths[currentMapId] : "默认路径") << std::endl;
     std::cout << "data:" << data << std::endl;
+    
+    while (!relocationFinished && waitCount < 20) { // 最多等待 1 秒（20*50ms），避免无限阻塞
+        // 这里的判断条件需要根据 SLAM 模块的反馈调整：
+        // 方式1：若 SLAM 会返回定位状态，可解析 data 或订阅状态话题；
+        // 方式2：简单判断 curPose 是否偏离原点（适合定位前在原点的场景）
+        if (fabs(curPose.x) > 0.01 || fabs(curPose.y) > 0.01) { 
+            relocationFinished = true;
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50)); // 每 50ms 检查一次
+            waitCount++;
+        }
+    }
+
+    // 4. 打印定位后的点位（此时 curPose 已更新）
+    if (relocationFinished) {
+        std::cout << "\033[1;32m[定位完成] 当前点位: \033[0m"; // 绿色高亮，区分成功日志
+        curPose.printInfo();
+    } else {
+        std::cout << "\033[1;31m[定位超时] 未获取到有效点位（当前仍为旧值）: \033[0m"; // 红色高亮，提示超时
+        curPose.printInfo();
+    }
 }
 
 //暂停导航函数
